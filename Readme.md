@@ -1,24 +1,40 @@
-# Monitoring Dashboard — Phase 1
+# Monitoring Dashboard Project
 
-A simple monitoring dashboard application (frontend + backend)  
-Polls and visualizes mock metrics.
+## System Architecture
+
+![System Architecture Diagram](path/to/your-diagram.png)
+> Diagram created using Draw.io / Lucidchart
 
 ---
 
-## Architecture Overview
+## Tech Stack
 
-This project is divided into two services:
+| Component         | Technology           | Reasoning                                                                 |
+|------------------|-------------------|--------------------------------------------------------------------------|
+| Frontend          | React / Vue / Angular | Chosen for fast UI development, component-based architecture             |
+| Backend           | Node.js / Python / Java | Efficient API handling, scalable, large ecosystem                        |
+| Database          | PostgreSQL / MongoDB | Reliable, widely supported, fits structured/unstructured data            |
+| Authentication    | JWT / OAuth2        | Secure, stateless, industry standard                                     |
+| CI/CD             | GitHub Actions / GitLab CI / Jenkins | Automates testing, building, and deployment                            |
+| Containerization  | Docker             | Consistent environments across dev, test, and production                 |
+| Orchestration     | Kubernetes / Docker Compose | Scalable deployment, easier service management                           |
 
-- **Backend service** (Node.js + Express)  
-  Exposes a `GET /metrics` endpoint returning simulated metrics JSON:
-  - `cpu_percent` (e.g. 0–100)  
-  - `latency_ms`  
-  - `active_users`  
-  - `request_count` (increasing counter)  
-  - `timestamp`
+---
 
-- **Frontend app** (React + Vite + Chart.js)  
-  Polls the backend every 10 seconds, displays the latest values in metric cards, and plots time series charts.
+## Local Deployment Guide
 
-The two services run on different ports (backend on `3001`, frontend on `5173`).
+### Prerequisites
 
+- Git
+- Node.js & npm / yarn
+- Docker (if using containers)
+- PostgreSQL / MongoDB (if database required)
+- Python (if backend in Python)
+
+### Steps
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/monitoring_dashboard.git
+cd monitoring_dashboard
