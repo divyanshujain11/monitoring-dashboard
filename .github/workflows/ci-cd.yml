@@ -59,10 +59,12 @@ jobs:
           docker push divaysnhujain/monitoring-frontend:${{ env.IMAGE_TAG }}
 
       # ---------------- Deploy to Kubernetes ----------------
-      - name: Set up kubeconfig
+      - name: Setup Kubeconfig
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" > $HOME/.kube/config
+          echo "$KUBECONFIG_DATA" > $HOME/.kube/config
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG_DATA }}
 
       - name: Apply Kubernetes Manifests
         run: |
