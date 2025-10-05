@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-frontend
+  namespace: monitoring-app
+  labels:
+    app: monitoring-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-frontend
+  template:
+    metadata:
+      labels:
+        app: monitoring-frontend
+    spec:
+      containers:
+        - name: monitoring-frontend
+          image: divaysnhujain/monitoring-frontend:2
+          ports:
+            - containerPort: 80
+          env:
+            - name: REACT_APP_BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: REACT_APP_BACKEND_URL
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-frontend
+  namespace: monitoring-app
+spec:
+  selector:
+    app: monitoring-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort

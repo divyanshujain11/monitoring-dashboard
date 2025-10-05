@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-backend
+  namespace: monitoring-app
+  labels:
+    app: monitoring-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-backend
+  template:
+    metadata:
+      labels:
+        app: monitoring-backend
+    spec:
+      containers:
+        - name: monitoring-backend
+          image: divaysnhujain/monitoring-backend:1
+          ports:
+            - containerPort: 3001
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitoring-backend
+  namespace: monitoring-app
+spec:
+  selector:
+    app: monitoring-backend
+  ports:
+    - port: 3001
+      targetPort: 3001
+  type: ClusterIP
