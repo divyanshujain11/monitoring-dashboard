@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Build & Push Docker Images
 
 on:
   push:
@@ -9,82 +9,21 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  docker:
     runs-on: ubuntu-latest
 
     steps:
-    # -----------------------------
-    # 1. Checkout code
-    # -----------------------------
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # -----------------------------
-    # 2. Set up Node.js
-    # -----------------------------
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+      - name: Set image tag
+        run: |
+          echo "IMAGE_TAG=build-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
-    # -----------------------------
-    # 3. Lint Backend
-    # -----------------------------
-    - name: Lint backend
-      working-directory: ./backend
-      run: npm install && npx eslint .
+      - name: Build backend image
+        run: |
+          docker build -t divaysnhujain/monitoring-backend:${{ env.IMAGE_TAG }} ./backend
 
-    # -----------------------------
-    # 4. Lint Frontend
-    # -----------------------------
-    - name: Lint frontend
-      working-directory: ./frontend
-      run: npm install && npx eslint .
-
-    # -----------------------------
-    # 5. Run Backend Tests
-    # -----------------------------
-    - name: Run backend tests
-      working-directory: ./backend
-      run: npm test
-
-    # -----------------------------
-    # 6. Run Frontend Tests
-    # -----------------------------
-    - name: Run frontend tests
-      working-directory: ./frontend
-      run: npm test
-
-    # -----------------------------
-    # 7. Build & Push Docker Images
-    # -----------------------------
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    - name: Build and push backend image
-      working-directory: ./backend
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/monitoring-backend:latest .
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/monitoring-backend:latest
-
-    - name: Build and push frontend image
-      working-directory: ./frontend
-      run: |
-        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/monitoring-frontend:latest .
-        docker push ${{ secrets.DOCKERHUB_USERNAME }}/monitoring-frontend:latest
-
-    # -----------------------------
-    # 8. Deploy to Kubernetes
-    # -----------------------------
-    - name: Setup kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
-
-    - name: Apply Kubernetes manifests
-      run: |
-        kubectl apply -f ./Deployment/backend.yaml
-        kubectl apply -f ./Deployment/frontend.yaml
+      - name: Build frontend image
+        run: |
+          docker build -t divaysnhujain/monitoring-frontend:${{ env.IMAGE_TAG }} ./frontend
